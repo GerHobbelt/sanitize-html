@@ -73,6 +73,15 @@ describe('sanitizeHtml', function() {
   it('should replace ol to ul and replace all attributes to class attribute with foo value', function() {
     assert.equal(sanitizeHtml('<ol foo="foo" bar="bar" baz="baz"><li>Hello world</li></ol>', { transformTags: {ol: sanitizeHtml.simpleTransform('ul', {class: 'foo'}, false)}, allowedAttributes: { ul: ['foo', 'bar', 'class'] } }), '<ul class="foo"><li>Hello world</li></ul>');
   });
+  it('should allow base64 image as src of an img tag', function() {
+    assert.equal(sanitizeHtml('<img src="data:image/png;base64,iVBORw0KGgoAA">', { allowedTags: ['img'] }), '<img src="data:image/png;base64,iVBORw0KGgoAA" />');
+  });
+  it('should dump invalid base64 image as src of an img tag', function() {
+    assert.equal(sanitizeHtml('<img src="data:image/png;base64,iVBORw0&KGgoAA">', { allowedTags: ['img'] }), '<img src />');
+  });
+  it('should dump base64 data other then image types as src of an img tag', function() {
+    assert.equal(sanitizeHtml('<img src="data:image/png+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dHA6Ly93d3cudzM">', { allowedTags: ['img'] }), '<img src />');
+  });
   it('should replace ol to ul and add attribute class with foo value and attribute bar with bar value', function() {
     assert.equal(sanitizeHtml('<ol><li>Hello world</li></ol>', { transformTags: {ol: function(tagName, attribs){
       attribs.class = 'foo';

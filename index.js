@@ -81,6 +81,11 @@ function sanitizeHtml(html, options) {
                 return;
               }
             }
+            if(a === 'src') {
+              if(naugtyData(value)) {
+                return;
+              }
+            }
             if (value.length) {
               // Values are ALREADY escaped, calling escapeHtml here
               // results in double escapes
@@ -138,6 +143,7 @@ function sanitizeHtml(html, options) {
   function naughtyHref(href) {
     // So we don't get faked out by a hex or decimal escaped javascript URL #1
     href = ent.decode(href);
+
     // Browsers ignore character codes of 32 (space) and below in a surprising
     // number of situations. Start reading here:
     // https://www.owasp.org/index.php/XSS_Filter_Evasion_Cheat_Sheet#Embedded_tab
@@ -149,7 +155,31 @@ function sanitizeHtml(html, options) {
       return false;
     }
     var scheme = matches[1].toLowerCase();
-    return (!_.contains(['http', 'https', 'ftp', 'mailto' ], scheme));
+    return (!_.contains(['http', 'https', 'ftp', 'mailto', 'data'], scheme));
+  }
+
+  function naugtyData(src) {
+    // So we don't get faked out by a hex or decimal escaped javascript URL #1
+    src = ent.decode(src);
+
+    // Browsers ignore character codes of 32 (space) and below in a surprising
+    // number of situations. Start reading here:
+    // https://www.owasp.org/index.php/XSS_Filter_Evasion_Cheat_Sheet#Embedded_tab
+    src = src.replace(/[\x00-\x20]+/, '');
+    // Case insensitive so we don't get faked out by JAVASCRIPT #1
+    var matches = src.match(/^([a-zA-Z]+)\:/);
+    if (!matches) {
+      // No scheme = no way to inject js (right?)
+      return false;
+    }
+    var scheme = matches[1].toLowerCase();
+
+    if(scheme == 'data') {
+      // Check if the data contains a valid base64 image
+      var base64ImageRegex = /data:image\/(png|jpg|jpeg|gif);base64,[a-zA-Z0-9\/+]+$/;
+
+      return !base64ImageRegex.test(src);
+    }
   }
 }
 
