@@ -42,14 +42,18 @@ function sanitizeHtml(html, options) {
   _.each(options.selfClosing, function(tag) {
     selfClosingMap[tag] = true;
   });
-  var disableAllowedAttributes = options.disableAllowedAttributes || false;
+  var disableAllowedAttributes = false;
   var allowedAttributesMap = {};
-  _.each(options.allowedAttributes, function(attributes, tag) {
-    allowedAttributesMap[tag] = {};
-    _.each(attributes, function(name) {
-      allowedAttributesMap[tag][name] = true;
+  if (options.allowedAttributes !== false) {
+    _.each(options.allowedAttributes, function(attributes, tag) {
+      allowedAttributesMap[tag] = {};
+      _.each(attributes, function(name) {
+        allowedAttributesMap[tag][name] = true;
+      });
     });
-  });
+  } else {
+    disableAllowedAttributes = true;
+  }
   var allowedClassesMap = {};
   _.each(options.allowedClasses, function(classes, tag) {
     // Implicitly allows the class attribute
@@ -241,7 +245,6 @@ function sanitizeHtml(html, options) {
 
 sanitizeHtml.defaults = {
   allowedTags: [ 'h3', 'h4', 'h5', 'h6', 'blockquote', 'p', 'a', 'ul', 'ol', 'nl', 'li', 'b', 'i', 'strong', 'em', 'strike', 'code', 'hr', 'br', 'div', 'table', 'thead', 'caption', 'tbody', 'tr', 'th', 'td', 'pre' ],
-  disableAllowedAttributes: false,
   allowedAttributes: {
     a: [ 'href', 'name', 'target' ],
     // We don't currently allow img itself by default, but this
