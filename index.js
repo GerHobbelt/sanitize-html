@@ -34,10 +34,15 @@ function sanitizeHtml(html, options) {
     script: true,
     style: true
   };
+  var disableAllowedTags = false;
   var allowedTagsMap = {};
-  _.each(options.allowedTags, function(tag) {
-    allowedTagsMap[tag] = true;
-  });
+  if (options.allowedTags !== false) {
+    _.each(options.allowedTags, function(tag) {
+      allowedTagsMap[tag] = true;
+    });
+  } else {
+    disableAllowedTags = true;
+  }
   var selfClosingMap = {};
   _.each(options.selfClosing, function(tag) {
     selfClosingMap[tag] = true;
@@ -98,7 +103,7 @@ function sanitizeHtml(html, options) {
         }
       }
 
-      if (!_.has(allowedTagsMap, name)) {
+      if (!disableAllowedTags && !_.has(allowedTagsMap, name)) {
         skip = true;
         if (_.has(nonTextTagsMap, name)) {
           skipText = true;

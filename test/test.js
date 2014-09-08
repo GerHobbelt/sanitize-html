@@ -16,6 +16,9 @@ describe('sanitizeHtml', function() {
   it('should accept a custom list of allowed tags', function() {
     assert.equal(sanitizeHtml('<blue><red><green>Cheese</green></red></blue>', { allowedTags: [ 'blue', 'green' ] }), '<blue><green>Cheese</green></blue>');
   });
+  it('should disable the allowed tags check', function() {
+    assert.equal(sanitizeHtml('<blue><red><green>Cheese</green></red></blue>', { allowedTags: false }), '<blue><red><green>Cheese</green></red></blue>');
+  });
   it('should reject attributes not whitelisted', function() {
     assert.equal(sanitizeHtml('<a href="foo.html" whizbang="whangle">foo</a>'), '<a href="foo.html">foo</a>');
   });
@@ -23,7 +26,10 @@ describe('sanitizeHtml', function() {
     assert.equal(sanitizeHtml('<a href="foo.html" whizbang="whangle">foo</a>', { allowedAttributes: { a: [ 'href', 'whizbang' ] } } ), '<a href="foo.html" whizbang="whangle">foo</a>');
   });
   it('should disable the allowed attributes per element check', function() {
-    assert.equal(sanitizeHtml('<a href="foo.html" whizbang="whangle">foo</a>', { allowedAttributes: false } ), '<a href="foo.html" whizbang="whangle">foo</a>');
+    assert.equal(sanitizeHtml('<a href="foo.html" whizbang="whangle"><span>foo</span></a>', { allowedAttributes: false } ), '<a href="foo.html" whizbang="whangle">foo</a>');
+  });
+  it('should disable the allowed attributes per element and allowed tags check', function() {
+    assert.equal(sanitizeHtml('<a href="foo.html" whizbang="whangle"><span>foo</span></a>', { allowedAttributes: false, allowedTags: false } ), '<a href="foo.html" whizbang="whangle"><span>foo</span></a>');
   });
   it('should clean up unclosed img tags and p tags', function() {
     assert.equal(sanitizeHtml('<img src="foo.jpg"><p>Whee<p>Again<p>Wow<b>cool</b>', { allowedTags: sanitizeHtml.defaults.allowedTags.concat([ 'img' ])}), '<img src="foo.jpg" /><p>Whee</p><p>Again</p><p>Wow<b>cool</b></p>');
