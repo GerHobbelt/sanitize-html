@@ -42,6 +42,7 @@ function sanitizeHtml(html, options) {
   _.each(options.selfClosing, function(tag) {
     selfClosingMap[tag] = true;
   });
+  var disableAllowedAttributes = options.disableAllowedAttributes || false;
   var allowedAttributesMap = {};
   _.each(options.allowedAttributes, function(attributes, tag) {
     allowedAttributesMap[tag] = {};
@@ -106,9 +107,9 @@ function sanitizeHtml(html, options) {
         return;
       }
       result += '<' + name;
-      if (_.has(allowedAttributesMap, name)) {
+      if (disableAllowedAttributes || _.has(allowedAttributesMap, name)) {
         _.each(attribs, function(value, a) {
-          if (_.has(allowedAttributesMap[name], a)) {
+          if (disableAllowedAttributes || _.has(allowedAttributesMap[name], a)) {
             if ((a === 'href') || (a === 'src')) {
               if (naughtyHref(value)) {
                 delete frame.attribs[a];
@@ -240,6 +241,7 @@ function sanitizeHtml(html, options) {
 
 sanitizeHtml.defaults = {
   allowedTags: [ 'h3', 'h4', 'h5', 'h6', 'blockquote', 'p', 'a', 'ul', 'ol', 'nl', 'li', 'b', 'i', 'strong', 'em', 'strike', 'code', 'hr', 'br', 'div', 'table', 'thead', 'caption', 'tbody', 'tr', 'th', 'td', 'pre' ],
+  disableAllowedAttributes: false,
   allowedAttributes: {
     a: [ 'href', 'name', 'target' ],
     // We don't currently allow img itself by default, but this

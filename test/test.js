@@ -22,6 +22,9 @@ describe('sanitizeHtml', function() {
   it('should accept a custom list of allowed attributes per element', function() {
     assert.equal(sanitizeHtml('<a href="foo.html" whizbang="whangle">foo</a>', { allowedAttributes: { a: [ 'href', 'whizbang' ] } } ), '<a href="foo.html" whizbang="whangle">foo</a>');
   });
+  it('should disable the allowed attributes per element check', function() {
+    assert.equal(sanitizeHtml('<a href="foo.html" whizbang="whangle">foo</a>', { disableAllowedAttributes: true, allowedAttributes: { a: [ 'href' ] } } ), '<a href="foo.html" whizbang="whangle">foo</a>');
+  });
   it('should clean up unclosed img tags and p tags', function() {
     assert.equal(sanitizeHtml('<img src="foo.jpg"><p>Whee<p>Again<p>Wow<b>cool</b>', { allowedTags: sanitizeHtml.defaults.allowedTags.concat([ 'img' ])}), '<img src="foo.jpg" /><p>Whee</p><p>Again</p><p>Wow<b>cool</b></p>');
   });
@@ -222,4 +225,3 @@ describe('sanitizeHtml', function() {
     );
   });
 });
-
